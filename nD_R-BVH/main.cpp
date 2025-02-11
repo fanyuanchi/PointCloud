@@ -7,7 +7,7 @@
 using namespace std;
 
 void load_data(Point *data, int data_size, Parser* parser, int dimension){
-    ifstream file(R"(/home/data/fanyuanchi/Paris_Luxembourg_10CSV.csv)"); // 替换为你的CSV文件路径
+    ifstream file(R"(/home/data/Paris_Luxembourg_10CSV.csv)"); // 替换为你的CSV文件路径
     if (!file) {
         cerr << "Failed to open file." << endl;
     }
@@ -34,7 +34,7 @@ void load_data(Point *data, int data_size, Parser* parser, int dimension){
     file.close();
 }
 void load_subs(Subscriber *subs, int subs_size, Parser* parser, int dimension){
-	ifstream file(R"(/home/data/fanyuanchi/6D_intensive.csv)"); // 替换为你的CSV文件路径
+	ifstream file(R"(/home/data/6D_intensive.csv)"); // 替换为你的CSV文件路径
     if (!file) {
         cerr << "Failed to open file." << endl;
     }
