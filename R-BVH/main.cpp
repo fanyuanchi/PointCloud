@@ -1,13 +1,8 @@
 #include <iostream>
-#include "Point.h"
-#include "Parser.h"
-#include "TreeNode.h"
 #include "Controller.h"
-#include "Statistics.h"
-using namespace std;
 
 void load_data(Point *data, int data_size, Parser* parser){
-    ifstream file(R"(/home/data/01.csv)"); // 替换为你的CSV文件路径
+    ifstream file(R"(/home/data/fanyuanchi/01.csv)");
     if (!file) {
         cerr << "Failed to open file." << endl;
     }
@@ -23,7 +18,7 @@ void load_data(Point *data, int data_size, Parser* parser){
         while (getline(ss, cell, ',')) {
             row.push_back(stod(cell));
         }
-        data[i].p_assign(row);
+        data[i].Set(row);
         parser->get_morton_code(&data[i]);
 
         if((i+1) % 1000000 == 0){
@@ -34,13 +29,12 @@ void load_data(Point *data, int data_size, Parser* parser){
     file.close();
 }
 void load_subs(Subscriber *subs, int subs_size, Parser* parser){
-	ifstream file(R"(/home/data/Subscribers_intensive.csv)"); // 替换为你的CSV文件路径
+	ifstream file(R"(/home/data/fanyuanchi/Subscribers_intensive.csv)");
     if (!file) {
         cerr << "Failed to open file." << endl;
     }
     string line;  
 	int id;
-	double p1_x, p1_y, p1_z, p2_x, p2_y, p2_z;  
 	cout << "Subs size: " << subs_size << endl;
 	getline(file, line);
     for(int i = 0; i < subs_size; i++) {
@@ -53,11 +47,13 @@ void load_subs(Subscriber *subs, int subs_size, Parser* parser){
             row.push_back(cell);
         }
         id = stoi(row.at(0));
-        p1_x = stod(row.at(1)) + parser->origin_x; p2_x = stod(row.at(4)) + parser->origin_x;
-        p1_y = stod(row.at(2)) + parser->origin_y; p2_y = stod(row.at(5)) + parser->origin_y;
-        p1_z = stod(row.at(3)) + parser->origin_z; p2_z = stod(row.at(6)) + parser->origin_z;
+        vector<double> start(3), end(3);
+        for(auto d = 0; d < 3; d++){
+            start[d] = stod(row[1+d]) + parser->origin[d];
+            end[d] = stod(row[4+d]) + parser->origin[d];
+        }
         
-		subs[i].s_assign(id, p1_x, p1_y, p1_z, p2_x, p2_y, p2_z);
+		subs[i].Set(id, start, end);
 		
 		if((i+1) % 1000000 == 0){
 			cout << (i+1) << " subs have been loaded." << endl;
@@ -98,7 +94,6 @@ int main(int argc, char** argv) {
 //    int data_size = 14295781;
 	int subs_size = 1250000;
 	int tree_num = 8;
-	Statistics::init(tree_num);
 	int level = 9;
 
     Point *data = new Point[data_size];
@@ -111,7 +106,7 @@ int main(int argc, char** argv) {
 //    origin.at(0) = -129894; origin.at(1) = -184620; origin.at(2) = -2252;
 //    range.at(0) = 301713; range.at(1) = 386952; range.at(2) = 97686;
 	Parser *parser = new Parser(origin, range, level);
-	Controller *col = new Controller(parser, tree_num, subs, subs_size, data, data_size);
+	Controller *col = new Controller(parser,subs, data, data_size);
 
     load_data(data, data_size, parser);
     load_subs(subs, subs_size, parser);
@@ -124,16 +119,6 @@ int main(int argc, char** argv) {
     for(auto& registration : registers){
         registration.join();
     }
-
-    for(int i = 0; i < tree_num; ++i){
-        Statistics::node_num = 0;
-        col->dfs_node(col->root[i]);
-        cout << Statistics::node_num << endl << endl;
-    }
-
-	for(int i = 0; i < tree_num; ++i){
-		cout << Statistics::reg_num[i] << endl;
-	}
 
     vector<thread> publishers;
     publishers.reserve(tree_num);
@@ -148,16 +133,6 @@ int main(int argc, char** argv) {
     }
 
     daemon.join();
-
-//    dfs_blr(col->root[0], 0);
-//    cout << "BLR: " << blr / path_num << endl << endl;
-
-
-    for(int i = 0; i < tree_num; ++i){
-        Statistics::node_num = 0;
-        col->dfs_node(col->root[i]);
-        cout << Statistics::node_num << endl << endl;
-    }
 
     long long tp = 0;
     int del_num = 0;
