@@ -5,180 +5,186 @@
 
 class TreeNode{
 	public:
-		int height;
-        int buffer;
-        time_t last_upt;
-        double start[3];
-        double end[3];
-        vector<Subscriber*> subscribers;
-		TreeNode** children;
+		int height_ = 0;
+        int buffer_ = -1;
+        double low_[3]{};
+        double top_[3]{};
+        time_t last_update_time_;
+        vector<Subscriber*> full_covered_subscribers_;
+        vector<Subscriber*> part_covered_subscribers_;
+		TreeNode** children_;
 		 
 	public:
-		static int data_max_size;
+		static int buffer_capacity;
 		
-		TreeNode(int subcode, TreeNode *parent){
-            this->height = parent->height+1;
-            this->buffer = 0;
-            this->last_upt = time(nullptr);
+		TreeNode(int sub_code, TreeNode *parent){
+            this->height_ = parent->height_+1;
+            this->buffer_ = 0;
+            this->last_update_time_ = time(nullptr);
 
             double mid[3];
 
             for(int idx = 0; idx < 3; ++idx){
-                this->start[idx] = parent->start[idx];
-                this->end[idx] = parent->end[idx];
-                mid[idx] = (this->start[idx] + this->end[idx])/2;
+                this->low_[idx] = parent->low_[idx];
+                this->top_[idx] = parent->top_[idx];
+                mid[idx] = (this->low_[idx] + this->top_[idx])/2;
             }
 
             for(int d = 0; d < 3; ++d){
-                if((subcode & 1) == 1){
-                    this->start[2-d] = mid[2-d];
+                if((sub_code & 1) == 1){
+                    this->low_[2-d] = mid[2-d];
                 }else{
-                    this->end[2-d] = mid[2-d];
+                    this->top_[2-d] = mid[2-d];
                 }
-                subcode >>= 1;
+                sub_code >>= 1;
             }
-            this->children = nullptr;
+            this->children_ = nullptr;
 		}
 
         TreeNode(Parser *parser){
-            this->buffer = 0;
-            this->last_upt = time(nullptr);
-            this->height = -1;
+            this->buffer_ = 0;
+            this->height_ = -1;
+            this->last_update_time_ = time(nullptr);
             for(int idx = 0; idx < 3; ++idx){
-                this->start[idx] = parser->origin[idx];
-                this->end[idx] = parser->range[idx] + this->start[idx];
+                this->low_[idx] = parser->low_[idx];
+                this->top_[idx] = parser->range_[idx] + this->low_[idx];
             }
-            this->children = nullptr;
+            this->children_ = nullptr;
         }
 		
 		
 		~TreeNode(){
-            this->subscribers.clear();
-            this->subscribers.shrink_to_fit();
-            if(this->children != nullptr){
+            this->full_covered_subscribers_.clear();
+            this->part_covered_subscribers_.clear();
+            if(this->children_ != nullptr){
                 for(int i = 0; i < 8; ++i){
-                    if(this->children[i] != nullptr){
-                        delete this->children[i];
+                    if(this->children_[i] != nullptr){
+                        delete this->children_[i];
                     }
                 }
-                delete[] this->children;
+                delete[] this->children_;
             }
 		}
 
         static bool second_filter(Point *p, Subscriber *s){
             for(int idx = 0; idx < 3; ++idx){
-                if(p->cord[idx] < s->start[idx] || p->cord[idx] > s->end[idx]){
+                if(p->cord_[idx] < s->low_[idx] || p->cord_[idx] > s->top_[idx]){
                     return false;
                 }
             }
             return true;
         }
 
-		void split(int idx){
-			this->children = new TreeNode*[8];
+		void split_tree_node(){
+			this->children_ = new TreeNode*[8];
             for(int i = 0; i < 8; ++i){
-                this->children[i] = new TreeNode(i, this);
+                this->children_[i] = new TreeNode(i, this);
             }
-            int relation, c_relation;
-            vector<Subscriber*> tmp;
+            enum Relation relation;
             TreeNode *child;
-            for(auto s : this->subscribers){
-                relation = Parser::range_relation(this->start, this->end, s);
-                if(relation == 1 || relation == 3){
-                    for(int i = 0; i < 8; ++i){
-                        child = this->children[i];
-                        c_relation = Parser::range_relation(child->start, child->end, s);
-                        if(c_relation != 0){
-                            child->add_sub(s, idx);
-                        }
+            for(auto subscriber : this->part_covered_subscribers_){
+                for(int i = 0; i < 8; ++i){
+                    child = this->children_[i];
+                    relation = Parser::range_relation(child->low_, child->top_, subscriber);
+                    if(relation == Contained){
+                        child->full_covered_subscribers_.push_back(subscriber);
+                    }else if(relation != DisJoint){
+                        child->part_covered_subscribers_.push_back(subscriber);
                     }
-                }else{
-                    tmp.push_back(s);
                 }
             }
-            this->subscribers.clear();
-            this->subscribers.assign(tmp.begin(), tmp.end());
-            this->subscribers.shrink_to_fit();
-            tmp.clear();
-            tmp.shrink_to_fit();
+            this->part_covered_subscribers_.clear();
+            this->part_covered_subscribers_.resize(0);
 		}
 
-        void merge(int idx, time_t cur_time){
-            int c_num = 8;
+        void merge_tree_node(time_t current_time){
+            int child_num = 8;
             set<Subscriber*> tmp;
-            for (int i = 0; i < c_num; ++i) {
-                tmp.insert(this->children[i]->subscribers.begin(), this->children[i]->subscribers.end());
-                delete this->children[i];
+            for (int i = 0; i < child_num; ++i) {
+                tmp.insert(this->children_[i]->part_covered_subscribers_.begin(),
+                           this->children_[i]->part_covered_subscribers_.end());
+                delete this->children_[i];
             }
-            this->subscribers.insert(this->subscribers.end(), tmp.begin(), tmp.end());
+            this->part_covered_subscribers_.assign(tmp.begin(), tmp.end());
             tmp.clear();
-            delete[] this->children;
-            this->children = nullptr;
-            this->last_upt = cur_time;
+            delete[] this->children_;
+            this->children_ = nullptr;
+            this->last_update_time_ = current_time;
         }
 
-		void add_sub(Subscriber *s, int idx) {
-			this->subscribers.push_back(s);
-		}
-		
-		void publish(Point *p) {
-            int left = 0, right = (int)this->subscribers.size()-1;
-            Subscriber *ls, *rs;
-            if (this->children == nullptr) {
-                while (left < right){
-                    while (left < right){
-                        ls = this->subscribers[left];
-                        if (!ls->is_delete){
-                            if (TreeNode::second_filter(p, ls)){ls->recv_mesa();}
-                            ++left;
-                        } else {break;}
+        void publish(Point *p) {
+            int left_index = 0, right_index = (int)this->full_covered_subscribers_.size()-1;
+            Subscriber *left_subscriber, *right_subscriber;
+            if (++this->buffer_ == TreeNode::buffer_capacity) {
+                while (left_index < right_index){
+                    while (left_index < right_index){
+                        left_subscriber = this->full_covered_subscribers_[left_index];
+                        if (!left_subscriber->is_delete_){
+                            left_subscriber->recv_mesa(this->buffer_);
+                            ++left_index;
+                        } else break;
                     }
-                    if (left >= right){break;}
-                    while (left < right){
-                        rs = this->subscribers[right];
-                        if(rs->is_delete){--right;} else {
-                            if (TreeNode::second_filter(p, rs)){rs->recv_mesa();}
+                    if (left_index >= right_index) break;
+                    while (left_index < right_index){
+                        right_subscriber = this->full_covered_subscribers_[right_index];
+                        if(right_subscriber->is_delete_) --right_index;
+                        else {
+                            right_subscriber->recv_mesa(this->buffer_);
                             break;
                         }
                     }
-                    if (left >= right){break;}
-                    swap(this->subscribers[left], this->subscribers[right]);
+                    if (left_index >= right_index) break;
+                    swap(this->full_covered_subscribers_[left_index],
+                         this->full_covered_subscribers_[right_index]);
+                    ++left_index;
+                    --right_index;
                 }
-                if(left == this->subscribers.size()-1 && !this->subscribers[left]->is_delete){
-                    ls = this->subscribers[left];
-                    if (TreeNode::second_filter(p, ls)){ls->recv_mesa();}
-                    ++left;}
-                this->subscribers.erase(this->subscribers.begin()+left, this->subscribers.end());
-            } else {
-                if (++this->buffer == TreeNode::data_max_size) {
-                    while (left < right){
-                        while (left < right){
-                            ls = this->subscribers[left];
-                            if (!ls->is_delete){
-                                ls->recv_mesa(this->buffer);
-                                ++left;
-                            } else {break;}
-                        }
-                        if (left >= right){break;}
-                        while (left < right){
-                            rs = this->subscribers[right];
-                            if(rs->is_delete){--right;} else {
-                                rs->recv_mesa(this->buffer);
-                                break;
-                            }
-                        }
-                        if (left >= right){break;}
-                        swap(this->subscribers[left], this->subscribers[right]);
+                if(left_index == this->full_covered_subscribers_.size()-1
+                && !this->full_covered_subscribers_[left_index]->is_delete_){
+                    this->full_covered_subscribers_[left_index]->recv_mesa(this->buffer_);
+                    ++left_index;
+                }
+                this->full_covered_subscribers_.erase(this->full_covered_subscribers_.begin()+left_index,
+                                                      this->full_covered_subscribers_.end());
+                this->buffer_ = 0;
+            }
+            if (this->children_ == nullptr) {
+                left_index = 0; right_index = (int)this->part_covered_subscribers_.size()-1;
+                while (left_index < right_index){
+                    while (left_index < right_index){
+                        left_subscriber = this->part_covered_subscribers_[left_index];
+                        if (!left_subscriber->is_delete_){
+                            if (TreeNode::second_filter(p, left_subscriber))
+                                left_subscriber->recv_mesa();
+                            ++left_index;
+                        } else break;
                     }
-                    if(left == this->subscribers.size()-1 && !this->subscribers[left]->is_delete){
-                        this->subscribers[left]->recv_mesa(this->buffer);
-                        ++left;}
-                    this->subscribers.erase(this->subscribers.begin()+left, this->subscribers.end());
-                    this->buffer = 0;
+                    if (left_index >= right_index) break;
+                    while (left_index < right_index){
+                        right_subscriber = this->part_covered_subscribers_[right_index];
+                        if(right_subscriber->is_delete_) --right_index;
+                        else {
+                            if (TreeNode::second_filter(p, right_subscriber))
+                                right_subscriber->recv_mesa();
+                            break;
+                        }
+                    }
+                    if (left_index >= right_index) break;
+                    swap(this->part_covered_subscribers_[left_index],
+                         this->part_covered_subscribers_[right_index]);
+                    ++left_index; --right_index;
                 }
+                if(left_index == this->part_covered_subscribers_.size()-1
+                && !this->part_covered_subscribers_[left_index]->is_delete_){
+                    left_subscriber = this->part_covered_subscribers_[left_index];
+                    if (TreeNode::second_filter(p, left_subscriber)){left_subscriber->recv_mesa();}
+                    ++left_index;
+                }
+                this->part_covered_subscribers_.erase(this->part_covered_subscribers_.begin()+left_index,
+                                                      this->part_covered_subscribers_.end());
             }
         }
 };
 
-int TreeNode::data_max_size = 5;
+int TreeNode::buffer_capacity = 1000;
 #endif

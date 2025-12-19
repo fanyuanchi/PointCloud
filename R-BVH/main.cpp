@@ -1,173 +1,93 @@
 #include <iostream>
 #include "Controller.h"
 
-void load_data(Point *data, int data_size, Parser* parser){
-    ifstream file(R"(/home/data/fanyuanchi/01.csv)");
-    if (!file) {
-        cerr << "Failed to open file." << endl;
-    }
+void load_data(Point *points, int point_size, Parser* parser){
+    ifstream file(); // input the path of point-cloud dataset (.csv) file
+    if (!file) cerr << "Failed to open file." << endl;
     string line;
-    cout << "Data size: " << data_size << endl;
     getline(file, line);
-    for(int i = 0; i < data_size; i++) {
+    for(int i = 0; i < point_size; i++) {
         getline(file, line);
         vector<double> row;
         stringstream ss(line);
         string cell;
-
-        while (getline(ss, cell, ',')) {
-            row.push_back(stod(cell));
-        }
-        data[i].Set(row);
-        parser->get_morton_code(&data[i]);
-
-        if((i+1) % 1000000 == 0){
-            cout << (i+1) << " data have been loaded." << endl;
-        }
+        while (getline(ss, cell, ',')) row.push_back(stod(cell));
+        points[i].Set(row);
+        parser->get_morton_code(&points[i]);
     }
-    cout << "Data loading completed." << endl;
     file.close();
 }
-void load_subs(Subscriber *subs, int subs_size, Parser* parser){
-	ifstream file(R"(/home/data/fanyuanchi/Subscribers_intensive.csv)");
-    if (!file) {
-        cerr << "Failed to open file." << endl;
-    }
+void load_subs(Subscriber *subscribers, int subscriber_size, Parser* parser){
+	ifstream file(); // input the path of subscriber dataset (.csv) file
+    if (!file) cerr << "Failed to open file." << endl;
     string line;  
 	int id;
-	cout << "Subs size: " << subs_size << endl;
 	getline(file, line);
-    for(int i = 0; i < subs_size; i++) {
+    for(int i = 0; i < subscriber_size; i++) {
     	getline(file, line);
         vector<string> row;
         stringstream ss(line);
         string cell;
-
-        while (getline(ss, cell, ',')) {
-            row.push_back(cell);
-        }
+        while (getline(ss, cell, ',')) row.push_back(cell);
         id = stoi(row.at(0));
         vector<double> start(3), end(3);
         for(auto d = 0; d < 3; d++){
-            start[d] = stod(row[1+d]) + parser->origin[d];
-            end[d] = stod(row[4+d]) + parser->origin[d];
+            start[d] = stod(row[1+d]) + parser->low_[d];
+            end[d] = stod(row[4+d]) + parser->low_[d];
         }
-        
-		subs[i].Set(id, start, end);
-		
-		if((i+1) % 1000000 == 0){
-			cout << (i+1) << " subs have been loaded." << endl;
-		}
+        subscribers[i].Set(id, start, end);
     }
-    cout << "Subs loading completed." << endl;
     file.close();
 }
 
 unsigned long long reg_num = 0;
 void dfs_reg(TreeNode *cur){
-    reg_num += cur->subscribers.size();
-    if(cur->children != nullptr){
+    reg_num += (cur->full_covered_subscribers_.size()+cur->part_covered_subscribers_.size());
+    if(cur->children_ != nullptr){
         for(int i = 0; i < 8; ++i){
-            dfs_reg(cur->children[i]);
-        }
-    }
-}
-
-double blr = 0.0;
-int path_num = 0;
-
-void dfs_blr(TreeNode *root, int branch_num){
-    if(root->children == nullptr){
-        if(!root->subscribers.empty() || branch_num != 0){
-            path_num++;
-            blr += ((double)branch_num+1) / ((double)root->subscribers.size()+1);
-        }
-    }else{
-        for(int i = 0; i < 8; ++i){
-            dfs_blr(root->children[i], branch_num+(int)root->subscribers.size());
+            dfs_reg(cur->children_[i]);
         }
     }
 }
 
 int main(int argc, char** argv) {
-	int data_size = 14644635;
-//    int data_size = 14295781;
-	int subs_size = 1250000;
-	int tree_num = 8;
-	int level = 9;
+    int point_size = // input point-cloud dataset size;
+	int subscriber_size = // input subscriber_set size;
+	int h_max = 9;
 
-    Point *data = new Point[data_size];
-	Subscriber *subs = new Subscriber[subs_size];
+    auto *data = new Point[point_size];
+	auto *subs = new Subscriber[subscriber_size];
 	
-	vector<double> origin(3);
-	vector<double> range(3);
-	origin.at(0) = 0; origin.at(1) = 0; origin.at(2) = 0;
-	range.at(0) = 1945308; range.at(1) = 1992782; range.at(2) = 253803;
-//    origin.at(0) = -129894; origin.at(1) = -184620; origin.at(2) = -2252;
-//    range.at(0) = 301713; range.at(1) = 386952; range.at(2) = 97686;
-	Parser *parser = new Parser(origin, range, level);
-	Controller *col = new Controller(parser,subs, data, data_size);
+    vector<double> low = // set the lower bound of the global data space;
+    vector<double> range = // set the range of global space along X, Y, Z-dimension;
+	auto *parser = new Parser(low, range, h_max);
+	auto *controller = new Controller(parser,subs, data, point_size);
 
-    load_data(data, data_size, parser);
-    load_subs(subs, subs_size, parser);
+    load_data(data, point_size, parser);
+    load_subs(subs, subscriber_size, parser);
 
     vector<thread> registers;
-    registers.reserve(tree_num);
-    for(int i = 0; i < tree_num; ++i){
-        registers.emplace_back(&Controller::multi_reg, col, subs_size, i);
+    registers.reserve(PARA);
+    for(int i = 0; i < PARA; ++i){
+        registers.emplace_back(&Controller::multi_reg, controller, subscriber_size, i);
     }
     for(auto& registration : registers){
         registration.join();
     }
 
     vector<thread> publishers;
-    publishers.reserve(tree_num);
-    for(int i = 0; i < tree_num; ++i){
-        publishers.emplace_back(&Controller::publisher, col, i);
+    publishers.reserve(PARA);
+    for(int i = 0; i < PARA; ++i){
+        publishers.emplace_back(&Controller::publisher, controller, i);
     }
 
-    thread daemon(&Controller::daemon, col, 30);
+    thread daemon(&Controller::daemon, controller, 10);
 
     for(auto& publisher : publishers){
         publisher.join();
     }
 
     daemon.join();
-
-    long long tp = 0;
-    int del_num = 0;
-    vector<int> vec(9, 0);
-    for(int i = 0; i < subs_size; ++i){
-        int mesa_num = subs[i].mesa_counter;
-        tp += mesa_num;
-        if(subs[i].is_delete){
-            del_num++;
-        }
-        if(mesa_num == 0){
-            vec.at(0)++;
-        }else if(mesa_num < 10){
-            vec.at(1)++;
-        }else if(mesa_num < 100){
-            vec.at(2)++;
-        }else if(mesa_num < 1000){
-            vec.at(3)++;
-        }else if(mesa_num < 10000){
-            vec.at(4)++;
-        }else if(mesa_num < 100000){
-            vec.at(5)++;
-        }else if(mesa_num < 1000000){
-            vec.at(6)++;
-        }else if(mesa_num < 10000000){
-            vec.at(7)++;
-        }else{
-            vec.at(8)++;
-        }
-    }
-    for(int & it : vec){
-        cout << it << endl;
-    }
-    cout << endl << endl << "Deletion number: " << del_num << endl << endl;
-    cout << endl << endl << "Total publish: " << tp << endl << endl;
     delete []data;
     delete []subs;
     return 0;

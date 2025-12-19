@@ -5,49 +5,49 @@
 
 class Subscriber{
 	public:
-		int id{};
-        bool is_delete;
-        double start[3];
-        double end[3];
-		int mesa_counter;
+		int id_{};
+        bool is_delete_;
+        double low_[3]{};
+        double top_[3]{};
+		int message_counter_;
 		
 	public:
 		Subscriber(int id, const vector<double>& start, const vector<double>& end){
-			this->id = id;
+			this->id_ = id;
             for(int idx = 0; idx < 3; ++idx){
-                this->start[idx] = start[idx];
-                this->end[idx] = end[idx];
+                this->low_[idx] = start[idx];
+                this->top_[idx] = end[idx];
             }
-			this->mesa_counter = 0;
-            this->is_delete = false;
+			this->message_counter_ = 0;
+            this->is_delete_ = false;
 		}
 		Subscriber(const Subscriber &s){
-			this->id = s.id;
+			this->id_ = s.id_;
             for(int idx = 0; idx < 3; ++idx){
-                this->start[idx] = s.start[idx];
-                this->end[idx] = s.end[idx];
+                this->low_[idx] = s.low_[idx];
+                this->top_[idx] = s.top_[idx];
             }
-			this->mesa_counter = s.mesa_counter;
-            this->is_delete = s.is_delete;
+			this->message_counter_ = s.message_counter_;
+            this->is_delete_ = s.is_delete_;
 		}
 		Subscriber(){
-			this->mesa_counter = 0;
-            this->is_delete = false;
+			this->message_counter_ = 0;
+            this->is_delete_ = false;
 		}
 		~Subscriber()= default;
 
-        void Set(int id, const vector<double> start, const vector<double> end){
-            this->id = id;
+        void Set(int id, const vector<double>& low, const vector<double>& top){
+            this->id_ = id;
             for(int idx = 0; idx < 3; ++idx){
-                this->start[idx] = start[idx];
-                this->end[idx] = end[idx];
+                this->low_[idx] = low[idx];
+                this->top_[idx] = top[idx];
             }
-            this->is_delete = false;
-            this->mesa_counter = 0;
+            this->is_delete_ = false;
+            this->message_counter_ = 0;
         }
 		
 		void recv_mesa(int mesa_num = 1){
-			this->mesa_counter += mesa_num;
+			this->message_counter_ += mesa_num;
 		}
 };
 

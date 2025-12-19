@@ -4,15 +4,15 @@ using namespace std;
 #define POINT_H
 class Point{
 	public:
-		double cord[3];
-		unsigned long long morton_code;
+		double cord_[3]{};
+		unsigned long long morton_code_{};
 	
 	public:
 		Point(const Point &p){
             for(int idx = 0; idx < 3; ++idx){
-                this->cord[idx] = p.cord[idx];
+                this->cord_[idx] = p.cord_[idx];
             }
-            this->morton_code = p.morton_code;
+            this->morton_code_ = p.morton_code_;
 		}
 		Point()= default;
 		
@@ -20,21 +20,21 @@ class Point{
 		
 		void Set(vector<double> &info){
             for(int idx = 0; idx < 3; ++idx){
-                this->cord[idx] = info[idx];
+                this->cord_[idx] = info[idx];
             }
 		}
 		
 		void Set(Point *p){
             for(int idx = 0; idx < 3; ++idx){
-                this->cord[idx] = p->cord[idx];
+                this->cord_[idx] = p->cord_[idx];
             }
-			this->morton_code = p->morton_code;
+			this->morton_code_ = p->morton_code_;
 		}
 		
 		void Set(double x, double y, double z){
-            this->cord[0] = x;
-            this->cord[1] = y;
-            this->cord[2] = z;
+            this->cord_[0] = x;
+            this->cord_[1] = y;
+            this->cord_[2] = z;
 		}
 };
 
