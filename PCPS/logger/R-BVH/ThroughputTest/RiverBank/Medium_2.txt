@@ -1,0 +1,33 @@
+# ================= META =================
+Experiment: ThroughputTest
+
+Point set: RiverBank
+
+Query set: Medium
+
+Index: R-BVH
+
+Register counter: 5000000
+
+Publish counter: 10000000
+
+Cancel counter: 1000000
+
+Thread counter: 32
+
+Memory constraint for each worker: 0.938
+
+Seed: 524287
+
+
+# ================= RUNTIME =================
+
+# ================= RESULT =================
+Average time (seconds): 1280.389
+
+Total time (seconds): 1373.058
+
+PC-PS averaged throughput (k requests / second): 12.496
+
+PC-PS total throughput (k requests / second): 11.653
+
