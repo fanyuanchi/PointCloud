@@ -45,8 +45,9 @@ In the main file, modify the parameters in the `runExperiment` function:
 - **QuerySet**: average selectivity of CR queries  
   (`VerySmall`: 1e-6, `Small`: 1e-5, `Medium`: 1e-4, `Large`: 1e-3)
 
-- **IndexType**: index method to evaluate
-  (R-BVH, R-Tree, R*-Tree, RR*-Tree, RLR-Tree, 3DGrid, Z-Grid)
+- **IndexType**: index method to evaluate  
+  (R-BVH, R-Tree, R*-Tree, RR*-Tree, RLR-Tree, 3DGrid, Z-Grid).  
+  The configuration parameters of each index are defined in the main function.
 
 - **TestType**: experiment type  
   (e.g., system throughput, baseline comparison)
