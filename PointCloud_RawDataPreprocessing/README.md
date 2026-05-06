@@ -7,24 +7,27 @@ which is required for running the PC-PS experiments.
 ---
 
 ## 🚀 How to Use
+### 1. Environment Setup
 
-### 1. Prepare Raw Data
+Make sure the `laspy` package is installed:
+
+```bash
+pip install laspy
+
+### 2. Prepare Raw Data
 
 Download the raw point-cloud datasets (e.g., `.las` / `.laz` files)  
 from the link provided in the root README.
 
 ---
 
-### 2. Configure Paths
+### 3. Configure Paths
 
 Update the input and output paths in the main script  
 to match your local environment.
 
 ---
 
-### 3. Run Preprocessing
+### 4. Run Preprocessing
 
-Execute the preprocessing script:
-
-```bash
-python main.py
+Execute the preprocessing script.
