@@ -7,7 +7,7 @@ To enable fair comparison with other C++-based baselines in PC-PS,
 we reimplemented RLR-Tree using Libtorch.
 
 - Original paper: [The RLR-Tree: A Reinforcement Learning Based R-Tree for Spatial Data](https://dl.acm.org/doi/abs/10.1145/3588917)
-- Reference implementation: [link]https://github.com/Steven-cpp/RLR-Tree-Index?tab=readme-ov-file
+- Reference implementation: https://github.com/Steven-cpp/RLR-Tree-Index?tab=readme-ov-file
 
 ---
 
