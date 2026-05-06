@@ -1,0 +1,45 @@
+# ================= META =================
+Experiment: BaselineTest
+
+Point set: RiverBank
+
+Query set: Medium
+
+Index: Z-2DGrid
+
+Register counter: 5000000
+
+Publish counter: 10000000
+
+Cancel counter: 1000000
+
+Thread counter: 32
+
+Memory constraint for each worker: 0.938
+
+Seed: 524287
+
+
+# ================= RUNTIME =================
+
+# ================= RESULT =================
+Averaged time for query registration (seconds): 10.693
+
+Averaged time for point publishing (seconds): 22795.247
+
+Averaged publishing throughput (second / 1k points): 2.280
+
+Averaged time for query cancel (seconds): 3.510
+
+Averaged total time (seconds): 22809.450
+
+Max time for query registration (seconds): 10.865
+
+Max time for point publishing (seconds): 23027.207
+
+Max publishing throughput (second / 1k points): 2.303
+
+Max time for query cancel (seconds): 5.528
+
+Max total time (seconds): 23041.081
+

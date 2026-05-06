@@ -1,0 +1,33 @@
+# ================= META =================
+Experiment: ThroughputTest
+
+Point set: RiverBank
+
+Query set: Small
+
+Index: Z-2DGrid
+
+Register counter: 5000000
+
+Publish counter: 10000000
+
+Cancel counter: 1000000
+
+Thread counter: 32
+
+Memory constraint for each worker: 0.938
+
+Seed: 524287
+
+
+# ================= RUNTIME =================
+
+# ================= RESULT =================
+Average time (seconds): 1780.885
+
+Total time (seconds): 1886.539
+
+PC-PS averaged throughput (k requests / second): 8.984
+
+PC-PS total throughput (k requests / second): 8.481
+

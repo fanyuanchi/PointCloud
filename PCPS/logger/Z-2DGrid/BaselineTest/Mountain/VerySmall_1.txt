@@ -1,0 +1,45 @@
+# ================= META =================
+Experiment: BaselineTest
+
+Point set: Mountain
+
+Query set: VerySmall
+
+Index: Z-2DGrid
+
+Register counter: 5000000
+
+Publish counter: 10000000
+
+Cancel counter: 1000000
+
+Thread counter: 32
+
+Memory constraint for each worker: 0.938
+
+Seed: 524287
+
+
+# ================= RUNTIME =================
+
+# ================= RESULT =================
+Averaged time for query registration (seconds): 3.388
+
+Averaged time for point publishing (seconds): 1259.597
+
+Averaged publishing throughput (second / 1k points): 0.126
+
+Averaged time for query cancel (seconds): 2.102
+
+Averaged total time (seconds): 1265.087
+
+Max time for query registration (seconds): 3.555
+
+Max time for point publishing (seconds): 1364.663
+
+Max publishing throughput (second / 1k points): 0.136
+
+Max time for query cancel (seconds): 2.733
+
+Max total time (seconds): 1369.971
+
