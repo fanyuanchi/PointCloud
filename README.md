@@ -39,3 +39,23 @@ The updated results are provided below.
 > Note: This update does not affect the conclusions of the paper, PC-PS continues to consistently outperform all baselines on System Throughput.
 
 ![Main Results](updatedResult.png)
+
+---
+
+## 📁 Repository Structure
+
+- `PCPS/`  
+  Full implementation of PC-PS, including all baselines and most performance evaluation code.
+
+- `PCPS_R-BVH(Only)/`  
+  A minimal implementation focusing on the R-BVH index only,  
+  used for evaluating query registration, query deletion, and data publishing latency.
+
+- `PointCloud_RawDataPreProcessing/`  
+  Scripts for preprocessing raw point-cloud datasets.
+
+- `RLR-Tree_TrainingByLibtorch/`  
+  Libtorch-based reimplementation of RLR-Tree,  
+  used for agent training.
+
+Each directory contains its own README with detailed instructions and usage.
