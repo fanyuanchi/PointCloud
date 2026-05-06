@@ -30,7 +30,7 @@ Make sure to update the dataset path in the main file accordingly.
 
 ### 2. Install Libtorch (for RLR-Tree)
 
-Download the appropriate Libtorch version for your system from the official website.  
+Download the appropriate Libtorch version for your system from [the official website](https://pytorch.org/get-started/locally/).  
 Extract it into the project directory and update the path in `CMakeLists.txt`.
 
 ---
@@ -51,5 +51,6 @@ In the main file, modify the parameters in the `runExperiment` function:
   (e.g., system throughput, baseline comparison)
 
 > Note: The evaluation of R-BVH query registration, deletion, and publishing latency  
-> is not included in this module.  
+> is currently not enabled in this module.  
+> These functionalities are implemented, but are separated to obtain more precise operation-level measurements.  
 > Please refer to `PCPS_R-BVH(Only)/` for these specific tests.
