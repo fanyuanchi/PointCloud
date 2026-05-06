@@ -21,3 +21,21 @@ We evaluate PC-PS on two real-world datasets:
 - **WHU-TLS** (dense & sparse terrestrial LiDAR, including WHU-TLS-R and WHU-TLS-M): http://3s.whu.edu.cn/ybs/en/benchmark.htm 
 
 - **Paris-Lille-3D** (nD urban street LiDAR): https://npm3d.fr/paris-lille-3d
+
+---
+
+## 🔔 Post-Publication Update (Important)
+This issue has been fixed in the current version.  
+The updated implementation can be found in the `PCPS/` directory.
+
+We have rerun the experiments reported in Table I of the paper, including:
+- Query Registration
+- Query Deletion
+- Data Publishing
+- System Throughput
+
+The updated results are provided below.
+
+> Note: This update does not affect the conclusions of the paper, PC-PS continues to consistently outperform all baselines on System Throughput.
+
+
