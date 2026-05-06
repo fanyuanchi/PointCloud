@@ -7,12 +7,15 @@ which is required for running the PC-PS experiments.
 ---
 
 ## 🚀 How to Use
+
 ### 1. Environment Setup
 
 Make sure the `laspy` package is installed:
 
 ```bash
 pip install laspy
+
+---
 
 ### 2. Prepare Raw Data
 
