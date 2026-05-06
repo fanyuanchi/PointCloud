@@ -1,0 +1,33 @@
+# ================= META =================
+Experiment: ThroughputTest
+
+Point set: Mountain
+
+Query set: Small
+
+Index: R-Tree
+
+Register counter: 5000000
+
+Publish counter: 10000000
+
+Cancel counter: 1000000
+
+Thread counter: 32
+
+Memory constraint for each worker: 0.938
+
+Seed: 524287
+
+
+# ================= RUNTIME =================
+
+# ================= RESULT =================
+Average time (seconds): 5138.553
+
+Total time (seconds): 5529.004
+
+PC-PS averaged throughput (k requests / second): 3.114
+
+PC-PS total throughput (k requests / second): 2.894
+
