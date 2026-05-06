@@ -1,0 +1,45 @@
+# ================= META =================
+Experiment: BaselineTest
+
+Point set: RiverBank
+
+Query set: VerySmall
+
+Index: RLR-Tree
+
+Register counter: 5000000
+
+Publish counter: 10000000
+
+Cancel counter: 1000000
+
+Thread counter: 32
+
+Memory constraint for each worker: 0.938
+
+Seed: 524287
+
+
+# ================= RUNTIME =================
+
+# ================= RESULT =================
+Time for query registration (seconds): 29.984
+
+Time for point publishing (seconds): 1059.166
+
+Publishing throughput (second / 1k points): 0.106
+
+Time for query cancel (seconds): 4.963
+
+Total time (seconds): 1094.113
+
+Time for query registration (seconds): 31.668
+
+Time for point publishing (seconds): 1250.224
+
+Publishing throughput (second / 1k points): 0.125
+
+Time for query cancel (seconds): 6.153
+
+Total time (seconds): 1284.935
+
