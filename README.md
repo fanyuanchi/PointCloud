@@ -38,4 +38,4 @@ The updated results are provided below.
 
 > Note: This update does not affect the conclusions of the paper, PC-PS continues to consistently outperform all baselines on System Throughput.
 
-
+![Main Results](.updatedResult.png)
