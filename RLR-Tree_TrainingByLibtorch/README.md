@@ -31,7 +31,10 @@ we reimplemented RLR-Tree using Libtorch.
 
 ### 1. Prepare Data
 
-Download the datasets and preprocess them following the same procedure as in `PCPS/`.
+Download the raw point-cloud datasets from the link provided in the root README.
+
+Then, use the preprocessing scripts in `PointCloud_RawDataPreProcessing/` to clean and prepare the data.  
+Make sure to update the dataset path in the main file accordingly.
 
 ---
 
