@@ -46,6 +46,7 @@ In the main file, modify the parameters in the `runExperiment` function:
   (`VerySmall`: 1e-6, `Small`: 1e-5, `Medium`: 1e-4, `Large`: 1e-3)
 
 - **IndexType**: index method to evaluate
+  (R-BVH, R-Tree, R*-Tree, RR*-Tree, RLR-Tree, 3DGrid, Z-Grid)
 
 - **TestType**: experiment type  
   (e.g., system throughput, baseline comparison)
